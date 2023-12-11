@@ -1,3 +1,3 @@
-export function dateToString(date: Date) {
-  return date.toLocaleString().slice(0, 10).split("/").join("-");
+export function dateToString(date: Date): string {
+  return date.toISOString().split('T')[0];
 }

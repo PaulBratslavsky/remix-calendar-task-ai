@@ -12,7 +12,7 @@ datasource db {
 
 model CalendarDay {
   id        String      @id @default(cuid())
-  date      String    @unique
+  date      String      @unique
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   tasks     Task[]
@@ -27,10 +27,10 @@ model Task {
   completed     Boolean       @default(false)
   calendarDayId String        
   calendarDay   CalendarDay   @relation(fields: [calendarDayId], references: [id], onDelete: Cascade )
-  taskItems     TaskItems[]
+  taskItems     TaskItem[]
 }
 
-model TaskItems {
+model TaskItem {
   id        String    @id @default(cuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

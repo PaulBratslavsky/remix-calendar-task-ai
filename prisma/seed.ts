@@ -7,7 +7,7 @@ async function createData() {
 
     const calendarDay = await prisma.calendarDay.create({
       data: {
-        date: "12-10-2023",
+        date: "2023-12-11",
         tasks: {
           create: [
             {
