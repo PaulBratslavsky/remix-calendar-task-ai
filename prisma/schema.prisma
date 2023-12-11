@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CalendarDay {
+  id        String      @id @default(cuid())
+  date      String    @unique
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  tasks     Task[]
+}
+
+model Task {
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  title         String
+  description   String?
+  completed     Boolean       @default(false)
+  calendarDayId String        
+  calendarDay   CalendarDay   @relation(fields: [calendarDayId], references: [id], onDelete: Cascade )
+  taskItems     TaskItems[]
+}
+
+model TaskItems {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title     String
+  completed Boolean   @default(false)
+  taskId    String    
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade )
+}
+
+
