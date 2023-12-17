@@ -31,12 +31,12 @@ export default function Index() {
   function handleSelect(date: Date) {
     if (date.toString() === "Invalid Date" || !date) return;
     setDate(date);
-    navigate(`/calendar/${dateToString(date)}`);
+    navigate(dateToString(date));
   }
 
   return (
     <div>
-      <div className="flex items-start gap-4 m-4">
+      <div className="flex-row items-start gap-4 m-4 md:flex">
         <CalendarRemix selected={date} setSelected={handleSelect} />
         <Outlet />
       </div>
