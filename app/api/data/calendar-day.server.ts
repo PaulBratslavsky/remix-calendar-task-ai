@@ -6,6 +6,11 @@ export async function getCalendarDayData(date: string) {
     include: {
       tasks: {
         orderBy: { createdAt: "asc" },
+        include: {
+          taskItems: {
+            orderBy: { createdAt: "asc" },
+          },
+        },
       },
     },
   });

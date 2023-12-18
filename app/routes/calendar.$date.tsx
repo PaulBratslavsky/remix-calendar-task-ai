@@ -1,11 +1,12 @@
 import { type ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { getCalendarDayData } from "~/api/data/calendar-day.server";
 
 import { Card } from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
 import { createTask, deleteTask, updateTask } from "~/api/data/task.server";
+import { createTaskItem } from "~/api/data/task-item.server";
 import TaskCard from "~/components/custom/TaskCard";
+import InitDayForm from "~/components/custom/CreateTaskForm";
 
 export async function loader({ params }: { params: { date: string } }) {
   const date = params.date;
@@ -26,8 +27,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         connect: { date: date },
       },
     });
-    console.log(entry);
-    return json({ message: "We will create a new task for this date " });
+    return json({
+      message: "We will create a new task for this date.",
+      data: entry,
+    });
   }
 
   async function deleteTaskAction(formData: FormData) {
@@ -44,10 +47,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const data = {
       title: title as string,
       description: description as string,
-    }
+    };
 
     const entry = await updateTask(taskId as string, data);
     return json({ message: "Task Updated", data: entry });
+  }
+
+  async function createTaskItemAction(formData: FormData) {
+    const taskId = formData.get("taskId");
+    const title = formData.get("title");
+    const data = { title: title as string };
+    const entry = await createTaskItem(taskId as string, data);
+    return json({ message: "Task Item Created", data: entry });
   }
 
   switch (action) {
@@ -57,15 +68,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return deleteTaskAction(formData);
     case "updateTask":
       return updateTaskAction(formData);
+    case "createTaskItem":
+      return createTaskItemAction(formData);
     default:
       return null;
   }
 }
 
 export default function DateRoute() {
-  const fetcher = useFetcher();
   const loaderData = useLoaderData<typeof loader>();
-  const action = fetcher.formData?.get("_action");
   const hasTasks = loaderData.entry?.tasks?.length > 0;
 
   return (
@@ -75,24 +86,7 @@ export default function DateRoute() {
           loaderData.entry?.tasks.map((task: any) => {
             return <TaskCard key={task.id} task={task} />;
           })}
-        <fetcher.Form method="POST">
-          <Card className="flex justify-center items-center h-96">
-            <Button
-              value="createTask"
-              name="_action"
-              type="submit"
-              disabled={action === "createTask"}
-            >
-              {hasTasks
-                ? action === "createTask"
-                  ? "Creating Task..."
-                  : "Add Task"
-                : action === "createTask"
-                ? "Creating Task..."
-                : "Create First Task"}
-            </Button>
-          </Card>
-        </fetcher.Form>
+        <InitDayForm hasTasks={hasTasks} />
       </div>
     </Card>
   );
