@@ -2,10 +2,10 @@ import { type ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { getCalendarDayData } from "~/api/data/calendar-day.server";
 
-import { Card, CardContent } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import DeleteTaskForm from "~/components/custom/DeleteTaskForm";
-import { createTask, deleteTask } from "~/api/data/task.server";
+import { createTask, deleteTask, updateTask } from "~/api/data/task.server";
+import TaskCard from "~/components/custom/TaskCard";
 
 export async function loader({ params }: { params: { date: string } }) {
   const date = params.date;
@@ -36,11 +36,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return json({ message: "Task deleted", data: entry });
   }
 
+  async function updateTaskAction(formData: FormData) {
+    const title = formData.get("title");
+    const description = formData.get("description");
+    const taskId = formData.get("taskId");
+
+    const data = {
+      title: title as string,
+      description: description as string,
+    }
+
+    const entry = await updateTask(taskId as string, data);
+    return json({ message: "Task Updated", data: entry });
+  }
+
   switch (action) {
     case "createTask":
       return await createTaskAction();
     case "deleteTask":
       return deleteTaskAction(formData);
+    case "updateTask":
+      return updateTaskAction(formData);
     default:
       return null;
   }
@@ -56,17 +72,8 @@ export default function DateRoute() {
     <Card className="p-4 w-full min-h-[calc(100vh-2rem)]">
       <div className="grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {hasTasks &&
-          loaderData.entry?.tasks.map((task) => {
-            return (
-              <Card key={task.id} className="relative h-96">
-                <CardContent>
-                  <p>Card Content</p>
-                </CardContent>
-                <div className="absolute bottom-0 p-2 w-full">
-                  <DeleteTaskForm id={task.id} />
-                </div>
-              </Card>
-            );
+          loaderData.entry?.tasks.map((task: any) => {
+            return <TaskCard key={task.id} task={task} />;
           })}
         <fetcher.Form method="POST">
           <Card className="flex justify-center items-center h-96">

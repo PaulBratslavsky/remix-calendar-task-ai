@@ -8,6 +8,20 @@ export async function createTask(data: any) {
   return entry;
 }
 
+export async function updateTask(id: string, data: any) {
+  try {
+    const entry = await prisma.task.update({
+      where: { id: id },
+      data: data,
+    });
+    return entry;
+  } catch (error) {
+    const prismaError = error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025";
+    if (prismaError) return error.message;
+    throw new Error("Error updating task");
+  }
+}
+
 export async function deleteTask(id: string) {
   try {
     const entry = await prisma.task.delete({ where: { id: id } });
